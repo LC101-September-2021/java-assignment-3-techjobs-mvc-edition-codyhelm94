@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static org.launchcode.techjobs.mvc.controllers.ListController.columnChoices;
 
@@ -30,12 +31,17 @@ public class SearchController {
     // TODO #3 - Create a handler to process a search request and render the updated search view.
     @PostMapping(value="results")
     public String displaySearchResults(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) String searchType, Model model){
-        ArrayList<Job> jobs;
+        ArrayList<Job> jobs=new ArrayList<>();
         if (searchType==null){
             searchType="all";
         }
         if (searchType.equals("all")){
-            jobs = JobData.findAll();
+            for(Map.Entry<String, String> set: columnChoices.entrySet()) {
+                ArrayList<Job> jobsList=JobData.findByColumnAndValue(set.getKey(), searchTerm);
+                for(int j=0;j<jobsList.size();j++){
+                    jobs.add(jobsList.get(j));
+                }
+            }
         } else {
             jobs = JobData.findByColumnAndValue(searchType, searchTerm);
         }
